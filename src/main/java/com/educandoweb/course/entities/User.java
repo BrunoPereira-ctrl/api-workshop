@@ -2,15 +2,21 @@ package com.educandoweb.course.entities;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.educandoweb.course.entities.enums.Perfil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
@@ -24,6 +30,11 @@ private static final long serialVersionUID = 1L;
  private String name;
  private String email;
  private String phone;
+ 
+ @ElementCollection(fetch=FetchType.EAGER)
+ private Set<Integer> perfis = new HashSet<>();
+ 
+ @JsonIgnore
  private String password;
  
  @JsonIgnore
@@ -31,7 +42,7 @@ private static final long serialVersionUID = 1L;
  private List<Order> orders = new ArrayList<>();
  
  public User() {
-	 
+	 addPerfil(Perfil.USER);
  }
  
 public User(Long id, String name, String email, String phone, String password) {
@@ -41,6 +52,7 @@ public User(Long id, String name, String email, String phone, String password) {
 	this.email = email;
 	this.phone = phone;
 	this.password = password;
+	addPerfil(Perfil.USER);
 }
 
 public Long getId() {
@@ -81,6 +93,14 @@ public String getPassword() {
 
 public void setPassword(String password) {
 	this.password = password;
+}
+
+public Set<Perfil> getPerfis() {
+	return perfis.stream().map(x -> Perfil.valueOf(x)).collect(Collectors.toSet());
+}
+
+public void addPerfil(Perfil perfil) {
+	perfis.add(perfil.getCode());
 }
 
 public List<Order> getOrders() {

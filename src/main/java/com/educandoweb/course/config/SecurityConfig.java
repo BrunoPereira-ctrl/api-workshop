@@ -6,10 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
@@ -21,8 +23,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 	private Environment env;
 	
 	private static final String[] PUBLIC_MATCHERS = {
-		 "/users/**"
+		 "/h2-console/**"
 	};
+	
+	private static final String[] PUBLIC_MATCHERS_GET = {
+			"/orders**",
+			"/users/**"
+			
+		};
 	 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
@@ -33,6 +41,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 		
 		http.csrf().disable();
 		http.authorizeHttpRequests()
+		    .antMatchers(HttpMethod.GET, PUBLIC_MATCHERS_GET).permitAll()
 		    .antMatchers(PUBLIC_MATCHERS).permitAll()
 		    .anyRequest().authenticated();
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
@@ -44,6 +53,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 		source.registerCorsConfiguration("/**", new CorsConfiguration().applyPermitDefaultValues());
 		return source;
 		
+	}
+	
+	@Bean
+	public BCryptPasswordEncoder bCryptPasswordEncoder() {
+		return new BCryptPasswordEncoder();
 	}
 
 }
