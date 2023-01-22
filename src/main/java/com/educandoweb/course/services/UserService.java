@@ -19,6 +19,8 @@ import com.educandoweb.course.services.exceptions.ResourceNotFoundException;
 @Service
 public class UserService {
 	
+	
+	
 	@Autowired
 	private BCryptPasswordEncoder pe;
 
@@ -33,6 +35,15 @@ public class UserService {
 		Optional<User> obj = repository.findById(id);
 		
 		return obj.orElseThrow(() -> new ResourceNotFoundException(id));
+	}
+	
+	public User findByEmail(String email) {
+		try {
+				User obj = repository.findByEmail(email);
+		return obj;
+		} catch (Exception e) {
+			throw new ResourceNotFoundException(email);
+		}	
 	}
 	
 	public User insert (User obj) {
@@ -63,6 +74,8 @@ public class UserService {
 		entity.setName(obj.getName());
 		entity.setEmail(obj.getEmail());
 		entity.setPhone(obj.getPhone());
+		entity.setPassword(pe.encode(obj.getPassword()));
 	}
+
 }
 
