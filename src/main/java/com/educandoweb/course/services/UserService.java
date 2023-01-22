@@ -12,7 +12,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.educandoweb.course.entities.User;
+import com.educandoweb.course.entities.enums.Perfil;
 import com.educandoweb.course.repositories.UserRepository;
+import com.educandoweb.course.security.UserSS;
+import com.educandoweb.course.services.exceptions.AuthorizationException;
 import com.educandoweb.course.services.exceptions.DatabaseException;
 import com.educandoweb.course.services.exceptions.ResourceNotFoundException;
 
@@ -32,6 +35,12 @@ public class UserService {
 	}
 	
 	public User findById(Long id) {
+		
+		UserSS user = perfilUserService.authenticated();
+		if(user==null || !user.hasRole(Perfil.ADMIN) && !id.equals(user.getId())) {
+			throw new AuthorizationException("Acesso Negado");
+		}
+		
 		Optional<User> obj = repository.findById(id);
 		
 		return obj.orElseThrow(() -> new ResourceNotFoundException(id));
